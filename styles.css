@@ -10,9 +10,61 @@
   --header-text: #f0f2f5;
   --border: #e2e6ee;
   --shadow: 0 2px 12px rgba(26, 29, 46, 0.06);
+  --shadow-hover: 0 8px 28px rgba(26, 29, 46, 0.12);
   --radius: 10px;
   --font-sans: "DM Sans", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* --- Keyframes --- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }
 
 /* --- Reset & Base --- */
@@ -34,14 +86,42 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 a {
   color: var(--accent);
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: color 0.25s var(--ease-out);
 }
 
 a:hover {
   color: var(--accent-hover);
+}
+
+/* Main content links (not header) */
+.main a {
+  position: relative;
+}
+
+.main a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 0;
+  height: 1px;
+  background: var(--accent-hover);
+  transition: width 0.3s var(--ease-out);
+}
+
+.main a:hover::after {
+  width: 100%;
 }
 
 /* --- Layout --- */
@@ -53,10 +133,24 @@ a:hover {
 
 /* --- Header --- */
 .header {
-  background: var(--header-bg);
+  background: linear-gradient(135deg, var(--header-bg) 0%, #252a3d 50%, var(--header-bg) 100%);
+  background-size: 200% 200%;
   color: var(--header-text);
   padding: 2.5rem 0;
   margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(13, 148, 136, 0.15), transparent);
+  pointer-events: none;
 }
 
 .header .name {
@@ -64,6 +158,7 @@ a:hover {
   font-size: 1.85rem;
   font-weight: 700;
   letter-spacing: -0.02em;
+  animation: fadeInUp 0.7s var(--ease-out) both;
 }
 
 .header .tagline {
@@ -71,21 +166,40 @@ a:hover {
   font-size: 1rem;
   color: rgba(255, 255, 255, 0.85);
   font-weight: 500;
+  animation: fadeInUp 0.7s var(--ease-out) 0.1s both;
 }
 
 .header .contact {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem 1.5rem;
+  animation: fadeInUp 0.7s var(--ease-out) 0.2s both;
 }
 
 .header .contact a {
   color: rgba(255, 255, 255, 0.9);
   font-size: 0.9rem;
+  position: relative;
+  transition: color 0.25s var(--ease-out);
+}
+
+.header .contact a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.3s var(--ease-out);
 }
 
 .header .contact a:hover {
   color: #fff;
+}
+
+.header .contact a:hover::after {
+  width: 100%;
 }
 
 /* --- Main --- */
@@ -95,7 +209,15 @@ a:hover {
 
 .section {
   margin-bottom: 2.5rem;
+  animation: fadeInUp 0.6s var(--ease-out) both;
 }
+
+.section:nth-of-type(1) { animation-delay: 0.15s; }
+.section:nth-of-type(2) { animation-delay: 0.25s; }
+.section:nth-of-type(3) { animation-delay: 0.35s; }
+.section:nth-of-type(4) { animation-delay: 0.45s; }
+.section:nth-of-type(5) { animation-delay: 0.55s; }
+.section:nth-of-type(6) { animation-delay: 0.65s; }
 
 .section > h2 {
   margin: 0 0 1rem 0;
@@ -107,6 +229,12 @@ a:hover {
   border-bottom: 2px solid var(--accent);
   padding-bottom: 0.4rem;
   display: inline-block;
+  transition: transform 0.25s var(--ease-out), color 0.25s ease;
+}
+
+.section > h2:hover {
+  color: var(--text);
+  transform: translateX(4px);
 }
 
 .section.summary p {
@@ -123,6 +251,25 @@ a:hover {
   margin-bottom: 1rem;
   box-shadow: var(--shadow);
   border: 1px solid var(--border);
+  border-left: 3px solid transparent;
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out),
+    border-left-color 0.3s var(--ease-out), border-color 0.3s ease;
+  animation: fadeInUp 0.5s var(--ease-out) both;
+}
+
+.card:nth-child(2) { animation-delay: 0.05s; }
+.card:nth-child(3) { animation-delay: 0.1s; }
+.card:nth-child(4) { animation-delay: 0.15s; }
+.card:nth-child(5) { animation-delay: 0.2s; }
+.card:nth-child(6) { animation-delay: 0.25s; }
+.card:nth-child(7) { animation-delay: 0.3s; }
+.card:nth-child(8) { animation-delay: 0.35s; }
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+  border-left-color: var(--accent);
+  border-color: rgba(13, 148, 136, 0.2);
 }
 
 .card:last-child {
@@ -173,6 +320,11 @@ a:hover {
   font-size: 0.8rem;
   color: var(--accent);
   font-weight: 500;
+  transition: letter-spacing 0.25s var(--ease-out);
+}
+
+.card:hover .tech {
+  letter-spacing: 0.02em;
 }
 
 .card ul {
@@ -184,6 +336,18 @@ a:hover {
   margin-bottom: 0.35rem;
   font-size: 0.95rem;
   color: var(--text);
+  position: relative;
+  padding-left: 0.5rem;
+  transition: padding-left 0.25s var(--ease-out), color 0.2s ease;
+}
+
+.card li::marker {
+  color: var(--accent);
+  transition: transform 0.25s var(--ease-out);
+}
+
+.card:hover li {
+  padding-left: 0.75rem;
 }
 
 .card li:last-child {
@@ -206,6 +370,24 @@ a:hover {
   border-radius: var(--radius);
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
+  transition: transform 0.3s var(--ease-spring), box-shadow 0.3s var(--ease-out),
+    border-color 0.3s ease, background 0.3s ease;
+  animation: scaleIn 0.5s var(--ease-out) both;
+}
+
+.skill-group:nth-child(1) { animation-delay: 0.05s; }
+.skill-group:nth-child(2) { animation-delay: 0.1s; }
+.skill-group:nth-child(3) { animation-delay: 0.15s; }
+.skill-group:nth-child(4) { animation-delay: 0.2s; }
+.skill-group:nth-child(5) { animation-delay: 0.25s; }
+.skill-group:nth-child(6) { animation-delay: 0.3s; }
+.skill-group:nth-child(7) { animation-delay: 0.35s; }
+
+.skill-group:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-hover);
+  border-color: rgba(13, 148, 136, 0.3);
+  background: linear-gradient(135deg, var(--surface) 0%, rgba(248, 249, 252, 0.98) 100%);
 }
 
 .skill-label {
@@ -214,11 +396,17 @@ a:hover {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-muted);
+  transition: color 0.25s ease;
+}
+
+.skill-group:hover .skill-label {
+  color: var(--accent);
 }
 
 .skill-value {
   font-size: 0.9rem;
   color: var(--text);
+  transition: color 0.25s ease;
 }
 
 /* --- Footer --- */
@@ -227,6 +415,7 @@ a:hover {
   border-top: 1px solid var(--border);
   background: var(--surface);
   margin-top: 2rem;
+  animation: fadeIn 0.6s var(--ease-out) 0.7s both;
 }
 
 .footer p {
@@ -234,6 +423,11 @@ a:hover {
   font-size: 0.85rem;
   color: var(--text-muted);
   text-align: center;
+  transition: color 0.25s ease;
+}
+
+.footer:hover p {
+  color: var(--text);
 }
 
 /* --- Responsive --- */
